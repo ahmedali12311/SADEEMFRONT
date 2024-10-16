@@ -1093,13 +1093,15 @@ for (let i = startPage; i <= endPage; i++) {
 const handleUpdateNeedsService = async (tableId, isNeedsService) => {
   try {
       const token = localStorage.getItem('token');
+      const formData = new FormData();
+      formData.append('is_needs_service', isNeedsService); // Add the form value
+
       const response = await fetch(`http://localhost:8080/vendor/${id}/table/${tableId}`, {
           method: 'PUT',
           headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              Authorization:`Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
           },
-          body: new URLSearchParams({ is_needs_service: isNeedsService }),
+          body: formData, // Send the form data
       });
 
       if (!response.ok) {
@@ -1109,17 +1111,21 @@ const handleUpdateNeedsService = async (tableId, isNeedsService) => {
           return;
       }
 
+      // Read the response body
+      const updatedTable = await response.json();
+
       // Update the local state
       setTables((prevTables) =>
           prevTables.map((table) =>
               table.id === tableId ? { ...table, is_needs_service: isNeedsService } : table
           )
       );
+
+      console.log(updatedTable); // Log the updated table
   } catch (error) {
       setError('An unexpected error occurred while updating the needs service status');
   }
 };
-
   const handleVendorFreeTable = async (tableId) => {
     try {
       const token = localStorage.getItem('token');
